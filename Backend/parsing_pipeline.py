@@ -78,8 +78,12 @@ class MineruParser :
                     self.zip_url = extract_result["full_zip_url"]
                     print("ZIP URL: " + self.zip_url)
                     break
-                
-                print(f"Current state: {extract_result['state']}")
+                elif extract_result["state"] == "failed":
+                    print("Failure details:", extract_result)
+                    raise Exception(extract_result.get("err_msg", "Unknown parsing error"))
+                else :
+                    print(f"Current state: {extract_result['state']}")
+
                 time.sleep(5)
 
         except Exception as e:
@@ -124,6 +128,7 @@ class MineruParser :
         name = self.filename.rsplit('.',1)[0]
         OUTPUT_PATH = os.path.join(os.getcwd(),'parsed_files',name)
         ZIP_PATH = os.path.join(os.getcwd(),'zip_files',name + '.zip')
+        print("Starting Parsing " + self.filename)
         try :
             if not os.path.exists(OUTPUT_PATH) :
         
@@ -164,8 +169,13 @@ if __name__ == '__main__' :
     get_paths(DATA_PATH)
 
     # for file_path in all_file_paths :
+    #     if os.path.basename(file_path) == 'standard_design_and_guidelines.pdf' : 
+    #         continue
     #     MineruParser(file_path).start()
 
-    MineruParser(all_file_paths[0]).start()
+    # print(len(all_file_paths),len(os.listdir(os.path.join(os.getcwd(),'zip_files'))))
+
+    # MineruParser(all_file_paths[0]).start()
+
     
 

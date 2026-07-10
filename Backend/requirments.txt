@@ -3,3 +3,4 @@ langgraph
 fastapi
 uvicorn
 python-dotenv
+graphrag
