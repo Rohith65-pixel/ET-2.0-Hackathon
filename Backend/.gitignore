@@ -1,3 +1,4 @@
 .venv
 .env
 parsed_files
+graph_rag_pipilne/.env
