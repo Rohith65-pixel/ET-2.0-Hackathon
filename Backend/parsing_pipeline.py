@@ -168,10 +168,8 @@ if __name__ == '__main__' :
 
     get_paths(DATA_PATH)
 
-    # for file_path in all_file_paths :
-    #     if os.path.basename(file_path) == 'standard_design_and_guidelines.pdf' : 
-    #         continue
-    #     MineruParser(file_path).start()
+    for file_path in all_file_paths :
+        MineruParser(file_path).start()
 
     # print(len(all_file_paths),len(os.listdir(os.path.join(os.getcwd(),'zip_files'))))
 
