@@ -1,5 +1,7 @@
 langchain
 langgraph
+langchain-groq
+langchain-google-genai
 fastapi
 uvicorn
 python-dotenv
