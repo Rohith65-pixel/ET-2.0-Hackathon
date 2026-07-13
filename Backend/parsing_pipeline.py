@@ -148,7 +148,7 @@ class MineruParser :
         name = self.filename.rsplit('.',1)[0]
         OUTPUT_PATH = os.path.join(os.getcwd(),'parsed_files',name)
         if os.path.exists(OUTPUT_PATH) :
-            with open(os.path.join(OUTPUT_PATH,"full.md"), "r", encoding="utf-8") as f:
+            with open(os.path.join(OUTPUT_PATH,"full.md"), "r") as f:
                 text = f.read()
             print(text[:3000])
         else :
