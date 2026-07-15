@@ -2,6 +2,7 @@ langchain
 langgraph
 langchain-groq
 langchain-google-genai
+ollama
 fastapi
 uvicorn
 python-dotenv

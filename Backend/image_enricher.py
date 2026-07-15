@@ -1,6 +1,6 @@
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+import ollama
 
 import re
 import base64
@@ -12,21 +12,21 @@ load_dotenv()
 BASE_DIR = os.getcwd()
 PARSE_DIR = os.path.join(BASE_DIR,'parsed_files')
 
-API_TOKEN = os.getenv("GROQ_API_KEY")
+# API_TOKEN = os.getenv("GROQ_API_KEY")
 
-if not API_TOKEN:
-    raise ValueError(
-        "GROQ_API_KEY was not found in .env"
-    )
+# if not API_TOKEN:
+#     raise ValueError(
+#         "GROQ_API_KEY was not found in .env"
+#     )
 
-print("API TOKEN key loaded successfully")
+# print("API TOKEN key loaded successfully")
 
-vlm = ChatGroq(
-    model='qwen/qwen3.6-27b',
-    # model='openai/gpt-oss-120b',
-    temperature=0.0,
-    api_key=API_TOKEN
-)
+# vlm = ChatGroq(
+#     model='qwen/qwen3.6-27b',
+#     # model='openai/gpt-oss-120b',
+#     temperature=0.0,
+#     api_key=API_TOKEN
+# )
 
 class ImageEnricher :
     def __init__(self,filename):
@@ -46,7 +46,7 @@ class ImageEnricher :
 
     def analyze_image(self,image_path):
 
-        print(f"Sending image to Grok: {os.path.basename(image_path)}")
+        print(f"Sending image to vlm: {os.path.basename(image_path)}")
 
         prompt = """
     You are analyzing a technical industrial document.
@@ -106,25 +106,19 @@ class ImageEnricher :
             image_bytes = f1.read()
 
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
-        message = HumanMessage(
-            content=[
-                {
-                    "type": "text", 
-                    "text": prompt
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}"
+        message = {
+                        "role": "user",
+                        "content": prompt,            
+                        "images": [base64_image]      # Just the raw base64 string (no data URI prefix)
                     }
-                }
-            ]
-        )
 
-        response = vlm.invoke([message])
+        response = ollama.chat(
+                                model='qwen2.5vl:7b', 
+                                messages=[message]
+                            )
         
         print('Done')
-        description = response.content
+        description = response['message']['content']
 
 
         return f"""
@@ -149,8 +143,6 @@ class ImageEnricher :
         print("\nImages found:", len(images))
 
         for index, image_path in enumerate(images,1):
-            if index < 36:
-                continue
             print(
                 f"\nProcessing image "
                 f"{index}/{len(images)}"
@@ -209,7 +201,7 @@ class ImageEnricher :
 
             output_path = os.path.join(document_folder,"enriched.md")
 
-            with open(output_path,'w') as f2 :
+            with open(output_path,'w',encoding="utf-8") as f2 :
                 f2.write(markdown_text)
 
         print(
@@ -222,5 +214,9 @@ class ImageEnricher :
         self.enrich_markdown()
 
 if __name__ == '__main__' :
-    ImageEnricher(os.listdir(PARSE_DIR)[0]).start()
+    for filename in os.listdir(PARSE_DIR) :
+        if os.path.isdir(os.path.join(PARSE_DIR,filename)) :
+            print(f"Processing folder: {filename}")
+            ImageEnricher(filename).start()
+    # ImageEnricher(os.listdir(PARSE_DIR)[0]).start()
     # print(os.getcwd())
