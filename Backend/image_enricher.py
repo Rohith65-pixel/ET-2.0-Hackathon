@@ -102,7 +102,7 @@ class ImageEnricher :
     entity and relationship extraction by a
     GraphRAG system.
     """
-        with open(image_path, "rb") as f1:
+        with open(image_path, "rb",encoding='utf-8') as f1:
             image_bytes = f1.read()
 
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
@@ -136,7 +136,7 @@ class ImageEnricher :
 
         print("\nReading markdown from:")
         markdown_path = os.path.join(self.file_path,'full.md')
-        with open(markdown_path,'r') as f1:
+        with open(markdown_path,'r',encoding="utf-8") as f1:
             markdown_text = f1.read()
 
         images = self.find_images(markdown_text)
@@ -215,6 +215,8 @@ class ImageEnricher :
 
 if __name__ == '__main__' :
     for filename in os.listdir(PARSE_DIR) :
+        if filename == '20053810':
+            continue
         if os.path.isdir(os.path.join(PARSE_DIR,filename)) :
             print(f"Processing folder: {filename}")
             ImageEnricher(filename).start()
