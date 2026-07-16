@@ -229,12 +229,12 @@ def write_to_enriched_folder() :
         if os.path.exists(os.path.join(file_path,"enriched.md")) :
             with open(os.path.join(file_path,"enriched.md"),'r',encoding="utf-8") as f1 :
                 enriched_text = f1.read()
-                with open(os.path.join(BASE_DIR,'enriched_files',filename + '.md'),'w',encoding="utf-8") as f2 :
+                with open(os.path.join(BASE_DIR,'graph_rag_pipeline','input',filename + '.md'),'w',encoding="utf-8") as f2 :
                     f2.write(enriched_text)
         else :
             with open(os.path.join(file_path,"full.md"),'r',encoding="utf-8") as f1 :
                 enriched_text = f1.read()
-                with open(os.path.join(BASE_DIR,'enriched_files',filename + '.md'),'w',encoding="utf-8") as f2 :
+                with open(os.path.join(BASE_DIR,'graph_rag_pipeline','input',filename + '.md'),'w',encoding="utf-8") as f2 :
                     f2.write(enriched_text)
 
 if __name__ == '__main__' :
