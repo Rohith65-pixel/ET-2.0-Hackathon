@@ -102,7 +102,7 @@ class ImageEnricher :
     entity and relationship extraction by a
     GraphRAG system.
     """
-        with open(image_path, "rb",encoding='utf-8') as f1:
+        with open(image_path, "rb") as f1:
             image_bytes = f1.read()
 
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
@@ -113,9 +113,12 @@ class ImageEnricher :
                     }
 
         response = ollama.chat(
-                                model='qwen2.5vl:7b', 
-                                messages=[message]
-                            )
+            model="qwen2.5vl:7b",
+            messages=[message],
+            options={
+                "num_ctx": 32768, #increase context window size to 32k tokens
+            }
+        )
         
         print('Done')
         description = response['message']['content']
@@ -134,13 +137,17 @@ class ImageEnricher :
 
         document_folder = self.file_path
 
-        print("\nReading markdown from:")
+        print("\nReading markdown from:",self.file_path)
         markdown_path = os.path.join(self.file_path,'full.md')
         with open(markdown_path,'r',encoding="utf-8") as f1:
             markdown_text = f1.read()
 
         images = self.find_images(markdown_text)
         print("\nImages found:", len(images))
+
+        if len(images) == 0:
+            print("No images found in markdown. Exiting.")
+            return
 
         for index, image_path in enumerate(images,1):
             print(
@@ -208,17 +215,38 @@ class ImageEnricher :
             "\nEnriched markdown saved at:"
         )
 
-        print(output_path)
+        print(output_path) if output_path else print("No enriched markdown generated.") 
     
     def start(self) :
+        if os.path.exists(os.path.join(self.file_path,"enriched.md")) :
+            print("Enriched markdown already exists. Skipping.")
+            return
         self.enrich_markdown()
+
+def write_to_enriched_folder() :
+    for filename in os.listdir(PARSE_DIR) :
+        file_path = os.path.join(PARSE_DIR,filename)
+        if os.path.exists(os.path.join(file_path,"enriched.md")) :
+            with open(os.path.join(file_path,"enriched.md"),'r',encoding="utf-8") as f1 :
+                enriched_text = f1.read()
+                with open(os.path.join(BASE_DIR,'enriched_files',filename + '.md'),'w',encoding="utf-8") as f2 :
+                    f2.write(enriched_text)
+        else :
+            with open(os.path.join(file_path,"full.md"),'r',encoding="utf-8") as f1 :
+                enriched_text = f1.read()
+                with open(os.path.join(BASE_DIR,'enriched_files',filename + '.md'),'w',encoding="utf-8") as f2 :
+                    f2.write(enriched_text)
 
 if __name__ == '__main__' :
     for filename in os.listdir(PARSE_DIR) :
-        if filename == '20053810':
+        if filename == 'standard_design_and_guidelines-151-238' :
             continue
-        if os.path.isdir(os.path.join(PARSE_DIR,filename)) :
-            print(f"Processing folder: {filename}")
-            ImageEnricher(filename).start()
+        print(f"\n\nProcessing document: {filename}")
+        ImageEnricher(filename).start()
+    
+    os.makedirs(os.path.join(BASE_DIR,'enriched_files'),exist_ok=True)
+    write_to_enriched_folder()
+      
+    
     # ImageEnricher(os.listdir(PARSE_DIR)[0]).start()
     # print(os.getcwd())
