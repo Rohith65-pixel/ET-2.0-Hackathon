@@ -11,6 +11,7 @@ load_dotenv()
 
 BASE_DIR = os.getcwd()
 PARSE_DIR = os.path.join(BASE_DIR,'parsed_files')
+GRAPH_RAG = os.path.join(BASE_DIR,'graph_rag_pipeline','input')
 
 # API_TOKEN = os.getenv("GROQ_API_KEY")
 
@@ -221,6 +222,9 @@ class ImageEnricher :
         if os.path.exists(os.path.join(self.file_path,"enriched.md")) :
             print("Enriched markdown already exists. Skipping.")
             return
+        elif self.filename + '.md' in os.listdir(GRAPH_RAG) :
+            return
+        
         self.enrich_markdown()
 
 def write_to_enriched_folder() :
